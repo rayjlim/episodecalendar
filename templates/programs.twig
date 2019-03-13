@@ -1,0 +1,102 @@
+{% include '_header.twig' %}
+{% include '_banner.twig' %}
+
+<h1>Programs</h1>
+
+
+<form action="{{baseurl}}api/programs/" class="form-inline" id="addForm">
+<fieldset>
+    <label for="add_title">Add: </label>
+    <input type="text" name="title" value="" id="add_title" placeholder="Program Title">
+    <input type="submit" value="Create">
+</fieldset> 
+</form>
+                
+<table class="table table-bordered table-striped" id="programs_table">
+    <thead>
+    <tr>
+		<th>Links</th>
+        <th>Title</th>
+        <th>Epguide title</th>
+		<th>QueryCode</th>
+        <th>Last Parse</th>
+		<th>Notes</th>
+        <th>actions</th>
+        
+    </tr>
+    </thead>
+    <tbody>
+    {% for program in programs %}
+         
+    <tr>
+
+        <form action="{{baseurl}}api/programs/{{program.id}}" class="updateForm" id="form_{{program.id}}" >
+        <input type="hidden" name="notes" value="{{program.notes}}"  class="input-small">
+		<td><a href="{{baseurl}}programs/{{program.id}}/episodes/" title="Details">Details</a>
+		{% if program.epguide_title|length > 0 %}
+			<br>
+    		<a href="http://epguides.com/{{program.epguide_title}}/">Epguides</a>
+    		{% endif %}
+			<br><input type="submit" value="Update">
+		
+		</td>
+        <td><input type="text" name="title" value="{{program.title}}"></td>
+        {% if program.epguide_title|length == 0 %}
+                 <td><input type="text" name="epguide_title" value="{{program.epguide_title}}" class="input-small"></td>
+        <td><input type="text" name="query_code" value="{{program.query_code}}"  class="input-small"></td>
+        <td colspan="4"><a href="{{baseurl}}programs/{{program.id}}/define/">load from epguide</a></td>
+
+        {% else %}
+         <td><input type="text" name="epguide_title" value="{{program.epguide_title}}" class="input-small"></td>
+        <td><input type="text" name="query_code" value="{{program.query_code}}"  class="input-small"></td>
+        <td>
+        <span class="parseSize">{{program.size_of_last_parse}}</span><br> 
+        <span class="dateParse">{{program.date_of_last_parse}}</span> <br> 
+        <span class="dateCheck">{{program.date_of_last_check}}</span>
+        </td>
+		<td>{{program.notes}}
+		
+			
+		</td>
+       
+        <td>
+
+        <ul class="nav pull-right">
+        <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Actions <b class="caret"></b></a>
+         <ul class="dropdown-menu">
+         {% if program.getIsNonEpisode %}
+          
+          <li><a href="{{baseurl}}programs/{{program.id}}/episodes/?full=true" title="Get episodes from External site"><i class="icon-eye-open"></i> List All Episodes</a></li>
+          <li><a href="{{baseurl}}api/programs/{{program.id}}/checknewepisodes"><i class="icon-refresh"></i> Auto Parse </a></li>
+          {% endif %}
+            
+            <li><a href="{{baseurl}}api/programs/{{program.id}}" class="deleteProgram"><i class="icon-trash"></i> Delete</a></li>
+            <li><a href="{{baseurl}}api/programs/{{program.id}}/clearparse"><i class="icon-remove-circle"></i> Reset Parse</a></li>
+            
+          </ul>
+        </li>
+      </ul>
+
+        </td>
+                {% endif %}
+
+        </form>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<iframe src="https://www.google.com/calendar/embed?src=3jqk82hmd2tiikau6oe4r2qh1s%40group.calendar.google.com&ctz=America/Los_Angeles" style="border: 0" width="500" height="500" frameborder="0" scrolling="yes"></iframe>
+{% include '_footer.twig' %}
+
+
+<script type="text/javascript">
+
+$(document).ready(function(){
+    $('.deleteProgram').click(Epcal.deleteProgramHandler);
+    $('#addForm').submit(Epcal.addProgramHandler);
+    $('.updateForm').submit(Epcal.updateProgramHandler);
+   
+});
+</script>

@@ -1,0 +1,6 @@
+backend/core/__deploy-config*.php
+vendor/*
+tests_js/MIT.LICENSE
+
+_logs/*
+backend/core/ERROR_LOG.txt

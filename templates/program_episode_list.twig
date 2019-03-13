@@ -1,0 +1,153 @@
+{% include '_header.twig' %}
+{% include '_banner.twig' %}
+
+<h1>Episodes for Program</h1>
+
+<h2>
+<a href="http://epguides.com/{{program.epguide_title}}/">
+{{program.title}}
+</a></h2>
+    {% if program.epguide_title|length > 0 %}
+    
+	<a href="http://epguides.com/{{program.epguide_title}}/">
+	<img src="http://epguides.com/{{program.epguide_title}}//cast.jpg">
+    </a>
+    {% endif %}
+<ul style="float:right">
+<li>Size of Last parse: {{program.size_of_last_parse}} (<a href="{{baseurl}}api/programs/{{program.id}}/clearparse">Clear</a>)</li>
+<li>Last Parse: {{program.date_of_last_parse}}</li>
+<li>Last Check: {{program.date_of_last_check}}</li>
+<li>Torrentz: <a href="http://{{torrent_word}}z.eu/search?f={{program.title}}">search {{program.title}}</a></li>
+
+</ul>
+
+
+
+ <form action="{{baseurl}}api/programs/{{program.id}}" class="updateForm" id="form_{{program.id}}" >
+        <input type="hidden" name="title" value="{{program.title}}">
+		<input type="hidden" name="epguide_title" value="{{program.epguide_title}}" class="input-small">
+		<input type="hidden" name="query_code" value="{{program.query_code}}" >
+       
+		<input type="text" name="notes" value="{{program.notes}}" size=100>
+		
+        <input type="submit" value="Update">
+
+</form>
+
+<form method="post" action="{{baseurl}}api/episodes/" class="form-inline" id="addForm">
+<fieldset>
+    Program id: {{program.id}}
+    <input type="hidden" name="program_id" id="program_id" value="{{program.id}}">
+    <input type="text" name="title"  id="add_title" placeholder="Title"
+        value="">
+    <label for="add_airdate">Airdate</label>
+    <input type="text" name="airdateSql" id="add_airdate" placeholder="yyyy-mm-dd"
+        value="2014-06-01">
+ 
+    <input type="submit" value="Create">
+</fieldset> 
+</form>
+
+<table class="table table-bordered table-striped" id="episodes_table">
+    <thead>
+        <tr>
+            <th>Season x Episode #</th>
+            <th>Title</th>
+            <th>Airdate</th>
+            <th>Action</th>
+        </tr> 
+    <thead>
+    <tbody>
+    
+    {% for show in shows %}
+        <tr>
+            <td>s{{show.season}}e{{show.season_episode_number}}</td>
+            <td><a title="{{show.title}}:{{show.overview}}">{{show.title}}</a></td>
+            <td>{{show.getAirdateString}}
+                {% if show.sent_to_calendar|length > 0 %}
+                    <br><span title="{{show.sent_to_calendar}}" style="background-color:green">Sent to Gcal</span>
+                {% endif %}
+            </td>
+            <td>
+               <ul>
+                <li><a href="{{baseurl}}episodes/{{show.id}}/sendtocalendar"><i class="icon-calendar"></i> Send to Calendar</a></li>
+                <li><a href="{{baseurl}}api/episodes/{{show.id}}" class="deleteShow"><i class="icon-trash"></i> Delete</a></li>
+                <li><a href="{{baseurl}}torrents/?search_string={{program.title}}+s{{show.season}}e{{show.season_episode_number}}" >Torrent list</a></li>
+                <li><a href="http://{{torrent_word}}z.eu/searchA?f={{show.title}}">Torrent by title</a></li>
+                </ul>
+			</td>
+        </tr>
+    {% endfor %}
+    <tbody>
+</table>
+<p>
+{% if not isProgramNonEpisode %}
+
+    <a href="{{baseurl}}programs/{{program.id}}/episodes/?full=true">Show list of all episodes from External list</a> |
+    <a href="{{baseurl}}api/programs/{{program.id}}/checknewepisodes">Check External list for new episodes</a>
+{% endif %}
+</p>
+
+
+{% if epguideShows %}
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+        <th>Episode Index</th>
+        <th>Season x Episode #</th>
+        <th>Title</th>
+        <th>Airdate</th>
+        
+
+        <th>Action</th>
+        </tr>
+    <thead>
+    <tbody>
+    {% for epshow in epguideShows %}
+    
+        <tr>
+
+            <td>{{epshow.episode_index}}</td>
+            <td>s{{epshow.season}}e{{epshow.season_episode_number}}</td>
+            <td><a title="{{epshow.title}}:{{epshow.overview}}">{{epshow.title}}</a></td>
+            <td>{{epshow.getAirdateString}}</td>
+            <td>
+                <form method="post" action="{{baseurl}}api/episodes/">
+                    
+                    <input type="hidden" name="program_id" value="{{program.id}}">
+                    <input type="hidden" name="title" value="{{epshow.title}}">
+                    <input type="hidden" name="airdateSql" value="{{epshow.getAirdateString}}">
+                    
+                    <input type="hidden" name="season" value="{{epshow.season}}">
+                    <input type="hidden" name="season_episode_number" value="{{epshow.season_episode_number}}">
+                    
+                    <input type="hidden" name="overview" value="{{epshow.overview}}">
+                    
+                    <input type="submit" value="Create" class="btn_create_from_external">
+     
+                </form>
+                <ul>
+                <li><a href="{{baseurl}}torrents/?search_string={{program.title}}+s{{epshow.season}}e{{epshow.season_episode_number}}" >Torrent list</a></li>
+                <li><a href="http://{{torrent_word}}z.eu/searchA?f={{program.title}}+s{{epshow.season}}e{{epshow.season_episode_number}}">torrent search<a></li>
+                </ul>
+            </td>
+            </tr>
+    {% endfor %}
+    <tbody>
+</table>
+
+
+{% endif %}
+{% include '_footer.twig' %}
+
+
+<script type="text/javascript">
+
+$(document).ready(function(){
+    $('.deleteShow').click(Epcal.deleteProgramEpisode);
+    $('#addForm').submit(Epcal.addEpisode);
+    $('.btn_create_from_external').click(Epcal.addFromExternal);
+    $('.updateForm').submit(Epcal.updateProgramHandler);   
+});
+</script>

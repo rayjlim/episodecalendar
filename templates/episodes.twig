@@ -1,0 +1,79 @@
+{% include '_header.twig' %}
+{% include '_banner.twig' %}
+
+<h1>Episode Search</h1>
+
+<h2>
+{{filterType}}
+ - {{showCount}}</h2>
+{% if isShowsPassed %}
+    <a href="{{baseurl}}api/purgepassedepisodes">Purge Passed Episodes</a>
+{% endif %}
+
+<table class="table table-bordered table-striped">
+   <tr>
+        <th>
+        {% if isShowsOrderAirdate %}
+            <a href="{{baseurl}}episodes/?{{urlParam}}sort=program" class="dropdown-toggle">Program <b class="caret"></b></a>
+        {% else %}
+        Program
+        {% endif %}
+
+        </th>
+        <th>Season x Episode #</th>
+        <th>
+        {% if isShowsOrderAirdate %}
+
+            Airdate
+        {% else %}
+            <a href="{{baseurl}}episodes/?{{urlParam}}sort=airdate" class="dropdown-toggle">Airdate <b class="caret"></b></a>
+        {% endif %}
+        </th>
+        <th>Title</th>
+        <th>Action</th>
+    </tr>
+
+
+		{% for show in shows %}
+        <tr>
+            <td >
+                <a href="{{baseurl}}episodes/{{show.id}}/toggleIsSaved">{{show.is_saved_for_later}}</a>
+                <a href="{{baseurl}}programs/{{show.program_id}}/episodes/">
+                {{show.program_name}}
+                </a>
+            </td>
+            <td>s{{show.season}}x{{show.season_episode_number}}</td>
+            <td>{{show.airdate}}</td>
+            <td><a title="{{show.title}}:{{show.overview}}">{{show.title}}</a></td>
+
+            <td>
+            {% if sent_to_calendar %}
+                <!-- This is the URL of the new entry created-->
+                <a href="" title="{{show.sent_to_calendar}}">#</a>
+            {% endif %}
+            <a href="{{baseurl}}api/episodes/{{show.id}}" class="deleteEpisode">Delete</a>,
+		        <a href="https://rarbg.to/torrents.php?category%5B%5D=18&category%5B%5D=41&category%5B%5D=49&search={{show.program_name}}">Torrent site</a> 
+            <ul class="nav pull-right">
+            <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Actions <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+
+            <li><a href="{{baseurl}}torrents/?showId={{show.id}}&search_string={{show.program_name}}+s{{show.season}}e{{show.season_episode_number}}" ><i class="icon-magnet"></i> Torrent list</a></li>
+            </ul>
+            </ul>
+
+            </td>
+        </tr>
+   {% endfor %}
+</table>
+
+{% include '_footer.twig' %}
+
+<script type="text/javascript">
+
+$(document).ready(function(){
+    $('.deleteEpisode').click(Epcal.deleteEpisode);
+
+});
+
+</script>

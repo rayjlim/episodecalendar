@@ -1,0 +1,15 @@
+{
+  "require": {
+    "slim/slim": "3.*",
+    "gabordemooij/redbean": "*",
+    "google/apiclient": "1.*",
+    "slim/twig-view": "^2.4"
+  },
+  "require-dev": {
+    "codeception/codeception": "*"
+  },
+  "autoload": {
+    "classmap": [
+      "backend"    ]
+  }
+}
